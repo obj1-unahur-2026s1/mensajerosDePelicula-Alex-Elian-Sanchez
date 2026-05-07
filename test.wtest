@@ -1,0 +1,120 @@
+import destinos.*
+import mensajeros.*
+import paquete.*
+import vehiculo.*
+import empresa.empresaMensajeria
+
+
+describe "Test de parte 1" {
+  test "Que roberto (90kg) puede llevar un paquete que está pago en un camión que tiene un acoplado." {
+    roberto.cambiarVehiculo(camion)
+    paquete.pagarPaquete()
+    assert.that(roberto.puedeLlegarA_Con_(puenteBrooklyn, paquete))  
+  }
+
+  test "Que neo con crédito no puede llevar un paquete que no está pago a la matrix." {
+    assert.notThat(neo.puedeLlegarA_Con_(matrix, paquete))
+  }
+}
+
+describe "Test de parte 2" {
+  test "Contratar un mensajero" {
+    assert.equals(0 , empresaMensajeria.mostrarMensajeros().size())
+    empresaMensajeria.contratarMensajeros(neo)
+    assert.that(empresaMensajeria.mostrarMensajeros().size() != 0)
+  }
+
+  test "Despedir un mensajero" {
+    empresaMensajeria.contratarMensajeros(chuckNorris)
+    empresaMensajeria.despedirMensajero(chuckNorris)
+    assert.equals(0 , empresaMensajeria.mostrarMensajeros().size())
+  }
+
+  test "Despedir a todos los mensajeros" {
+    empresaMensajeria.contratarMensajeros(chuckNorris)
+    empresaMensajeria.contratarMensajeros(neo)
+    empresaMensajeria.despedirATodos()
+    assert.equals(0 , empresaMensajeria.mostrarMensajeros().size())
+  }
+
+  test "mensajeria grande" {
+    assert.notThat(empresaMensajeria.esGrande())
+    empresaMensajeria.contratarMensajeros(chuckNorris)
+    empresaMensajeria.contratarMensajeros(neo)
+    empresaMensajeria.contratarMensajeros(roberto)
+    assert.that(empresaMensajeria.esGrande())
+  }
+
+  test "entregado por primer empleado" {
+    empresaMensajeria.contratarMensajeros(neo)
+    paquete.pagarPaquete()
+    assert.that(empresaMensajeria.mensajerosPuedeEntregarPaquete(matrix, paquete))
+  }
+
+  test "peso del ultimo mensajero" {
+    empresaMensajeria.contratarMensajeros(neo)
+    empresaMensajeria.contratarMensajeros(roberto)
+    assert.equals(95, empresaMensajeria.ultimoMensajeroPeso())
+  }
+}
+
+describe "Test de parte 3" {
+  test "Puede ser entregado" {
+    empresaMensajeria.contratarMensajeros(neo)
+    empresaMensajeria.contratarMensajeros(roberto)
+    paquetonViajero.agregarDestino(matrix)
+    paquetonViajero.pagarPaquete()
+    assert.that(empresaMensajeria.puede_SerLlevadoPorLaEmpresa(paquetonViajero))
+  }
+
+  test "mensajeros que pueden llevar un paquete dado" {
+    empresaMensajeria.contratarMensajeros(neo)
+    empresaMensajeria.contratarMensajeros(roberto)
+    paquete.pagarPaquete()
+    assert.equals([neo],empresaMensajeria.mensajerosQuePuedenLlevarPaquete(paquete))
+  }
+
+  test "tiene sobrepeso" {
+    empresaMensajeria.contratarMensajeros(roberto)
+    empresaMensajeria.contratarMensajeros(chuckNorris)
+    roberto.cambiarVehiculo(camion)
+    camion.cambiarCantidadAcoplados(4)
+    assert.that(empresaMensajeria.sobrepeso())
+  }
+
+  test "enviar paquete aleatorio" {
+    empresaMensajeria.contratarMensajeros(roberto)
+    empresaMensajeria.entregarPaquete(matrix, paquete)
+    assert.equals([paquete], empresaMensajeria.paquetesPendientes())
+  }
+
+  test "facturacion de la empresa" {
+    empresaMensajeria.contratarMensajeros(neo)
+    empresaMensajeria.contratarMensajeros(roberto)
+    empresaMensajeria.contratarMensajeros(chuckNorris)
+    paquete.pagarPaquete()
+    empresaMensajeria.entregarPaquete(puenteBrooklyn, paquete)
+    assert.equals(50, empresaMensajeria.facturacion())
+  }
+
+  test "enviar paquetes" {
+    empresaMensajeria.contratarMensajeros(neo)
+    paquete.pagarPaquete()
+    empresaMensajeria.enviarPaquetes([paquete, paquetito])
+    assert.equals(0,empresaMensajeria.paquetesPendientes().size())
+  }
+
+  test "paquete Pendiente más caro" {
+    empresaMensajeria.contratarMensajeros(roberto)
+    paquetonViajero.agregarDestino(puenteBrooklyn)
+    paquetonViajero.pagarPaquete()
+    empresaMensajeria.enviarPaquetes([paquete, paquetonViajero])
+    assert.equals(100 ,empresaMensajeria.paquetePendienteMasCaro().precio())
+  }
+
+  test "Nuevo paquete y mensajero" {
+    empresaMensajeria.contratarMensajeros(rambo)
+    paqueteCuotas.pagarPaquete(2)
+    assert.notThat(rambo.puedeLlegarA_Con_(puenteBrooklyn, paqueteCuotas))
+  }
+}
